@@ -8,7 +8,7 @@
 #define PHT_CTR_MAX  
 //chuan: for tournament predictor
 #define TOURNAMENT_CTR_MAX 3
-#define PHT_CTR_INIT 2
+#define PHT_CTR_INIT 3
 
 #define HIST_LEN   16
 #define TOUR_LEN   16
