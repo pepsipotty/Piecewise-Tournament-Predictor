@@ -1,14 +1,10 @@
 #include "predictor.h"
 
-// BHT = Branch History Table
-// PHT = Pattern History Table
-// GHR = Global History Register
-// PC = Program Counter
 
-#define PHT_CTR_MAX  
+#define PHT_CTR_MAX  3
 //chuan: for tournament predictor
 #define TOURNAMENT_CTR_MAX 3
-#define PHT_CTR_INIT 3
+#define PHT_CTR_INIT 2
 
 #define HIST_LEN   16
 #define TOUR_LEN   16
@@ -19,9 +15,9 @@
 #define UINT16      unsigned short int
 
 /////////////// STORAGE BUDGET JUSTIFICATION ////////////////
-// Total storage budget: 32KB + 32 bits
+// Total storage budget: 52KB + 32 bits
 
-// Total PHT counters for Global predictor: 2^13
+// Total PHT counters for Global predictor: 2^16
 // Total PHT size for global predictor = 2^16 * 2 bits/counter = 2^17 bits = 16KB
 // GHR size for global predictor: 32 bits
 
