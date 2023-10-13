@@ -10,7 +10,7 @@
 #define TOURNAMENT_CTR_MAX 3
 #define PHT_CTR_INIT 2
 
-#define HIST_LEN   13
+#define HIST_LEN   16
 #define TOUR_LEN   16
 #define BHT_BIT_SIZE 11
 #define BHT_HIST_LENGTH 16
