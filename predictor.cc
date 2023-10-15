@@ -6,28 +6,28 @@
 #define TOURNAMENT_CTR_MAX 3
 #define PHT_CTR_INIT 2
 
-#define HIST_LEN   16
-#define TOUR_LEN   16
-#define BHT_BIT_SIZE 11
-#define BHT_HIST_LENGTH 16
+#define HIST_LEN   15
+#define TOUR_LEN   15
+#define BHT_BIT_SIZE 12
+#define BHT_HIST_LENGTH 15
 #define PHT_LOCAL_CTR_INIT 2
 #define PHT_LOCAL_CTR_MAX  3
 #define UINT16      unsigned short int
 
 /////////////// STORAGE BUDGET JUSTIFICATION ////////////////
-// Total storage budget: 52KB + 32 bits
+// Total storage budget: 32KB + 32 bits
 
-// Total PHT counters for Global predictor: 2^16
-// Total PHT size for global predictor = 2^16 * 2 bits/counter = 2^17 bits = 16KB
+// Total PHT counters for Global predictor: 2^15
+// Total PHT size for global predictor = 2^15 * 2 bits/counter = 2^16 bits = 8KB
 // GHR size for global predictor: 32 bits
 
-// Total PHT counters for local predictor: 2^16
-// Total PHT size for local predictor = 2^16 * 2 bits/counter = 2^17 bits = 16KB
-// Total BHT size for local predictor = 2^11 * 16 bits/counter = 2^15 bits = 4KB
-// Total Size for local predictor = 16KB + 4KB = 20KB
+// Total PHT counters for local predictor: 2^15
+// Total PHT size for local predictor = 2^15 * 2 bits/counter = 2^16 bits = 8KB
+// Total BHT size for local predictor = 2^12 * 16 bits/counter = 2^16 bits = 8KB
+// Total Size for local predictor = 8KB + 8KB = 16KB
 
-// Total Tournament counters is: 2^16
-// Total Tournament counter's size = 2^16 * 2 bits/counter = 2^17 bits = 16KB
+// Total Tournament counters is: 2^15
+// Total Tournament counter's size = 2^15 * 2 bits/counter = 2^16 bits = 8KB
 /////////////////////////////////////////////////////////////
 
 
