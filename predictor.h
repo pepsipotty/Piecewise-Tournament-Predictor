@@ -19,9 +19,6 @@ class PREDICTOR{
   // The state is defined for Gshare, change for your design
 
  private:
-
-
-  UINT32  GHR;           // global history register
   UINT32  *pht;          // pattern history table
   UINT32  historyLength; // history length
   UINT32  numPhtEntries; // entries in pht
@@ -33,6 +30,10 @@ class PREDICTOR{
   UINT32 *pht_local;
   UINT32 numPhtLocalEntries;
   UINT32 W[1 << GLOBAL_HISTORY_LENGTH][1 << LOCAL_HISTORY_LENGTH][HIST_LEN + 1];
+  UINT32 GHR[HIST_LEN]; // global history register
+  UINT32 GA[HIST_LEN];
+  int theta;
+
 
   //branch history table for local branch predictor
   UINT32 bht_history_length;
@@ -43,8 +44,6 @@ class PREDICTOR{
   //for tournament counter
   UINT32 *predictorChooseCounter;
   UINT32 numTournamentCounter;
-
-
 
 
  public:
@@ -60,6 +59,8 @@ class PREDICTOR{
 
   void    UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget);
   void    TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget);
+  void    trainPredictor(UINT32 PC, bool prediction);
+  int     output;
 
   // Helper functions
   void initWeights();

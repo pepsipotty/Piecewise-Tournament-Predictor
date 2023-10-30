@@ -40,19 +40,23 @@
 /////////////////////////////////////////////////////////////
 
 PREDICTOR::PREDICTOR(void){
+  // This implementation requires the following variables to be declared and initialized:
+  // Global Address: GA
+  // Global History Register: GHR
+  // Weights: W
   
-  initWeights();
-  initGlobalHistoryRegister();
+  theta = static_cast<int>(2.14 * (HIST_LEN + 1)) + 20;
 
-
+  initWeights(); // Initialize W
+  initGlobalHistoryRegister(); // Initialize GHR
 }
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
 bool   PREDICTOR::GetPrediction(UINT32 PC){
-    int output = W[PC][0][0];
-    for (int i = 1; i <= h; i++) {
+    output = W[PC][0][0];
+    for (int i = 1; i <= PC; i++) {
         if (GHR[i]) {
             output += W[PC][GA[i]][i];
         } else {
@@ -64,73 +68,84 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 }
 
 
-//for global predictor
-bool   PREDICTOR::GetGlobalPrediction(UINT32 PC){
-    UINT32 phtIndex   = (PC^ghr) % (numPhtEntries);
-    UINT32 phtCounter = pht[phtIndex];
-    if(phtCounter > PHT_CTR_MAX/2){
-        return TAKEN;
-    }else{
-        return NOT_TAKEN;
-    }
-}
-
-//for local predictor
-bool   PREDICTOR::GetLocalPrediction(UINT32 PC){
-    UINT32 bhtIndex   = (PC >> (32-bht_bit_size));
-    UINT16 bht_result = bht[bhtIndex];
-    UINT32 pht_local_index = (PC^(UINT32)(bht_result))% (numPhtLocalEntries);
-
-    if(pht_local[pht_local_index] > PHT_LOCAL_CTR_MAX/2){
-        return TAKEN;
-    }else{
-        return NOT_TAKEN;
-    }
-}
-
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
 void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget){
+   if (abs(output) < theta || predDir) {
+      if (predDir) {
+          W[PC][0][0] = W[PC][0][0] + 1;
+      } else {
+          W[PC][0][0] = W[PC][0][0] - 1;
+      }
 
- 
-
-
+      for (int i = 0 ; i < HIST_LEN ; i++)
+        {
+            if (GHR[i] == TAKEN)
+            {
+                W[PC][GA[i]][i] += 1 ; 
+            }
+            else
+            {
+                W[PC][GA[i]][i] -= 1 ; 
+            }
+        }
+    } 
 }
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-void    PREDICTOR::TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget){
-
+void PREDICTOR::TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget) {
   // This function is called for instructions which are not
   // conditional branches, just in case someone decides to design
   // a predictor that uses information from such instructions.
   // We expect most contestants to leave this function untouched.
-
   return;
 }
+
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
 // My beloved helper functions to keep the code above clean
 
+
+
+/*
+ 
+  #     # ####### #       ######  ####### ######  
+  #     # #       #       #     # #       #     # 
+  #     # #       #       #     # #       #     # 
+  ####### #####   #       ######  #####   ######  
+  #     # #       #       #       #       #   #   
+  #     # #       #       #       #       #    #  
+  #     # ####### ####### #       ####### #     # 
+                                                  
+ 
+*/
+
 void PREDICTOR::initWeights() {
   UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
   UINT16 m = (1 << LOCAL_HISTORY_LENGTH);
   UINT32 W[n][m][HIST_LEN + 1]; 
-  GHR = 0; // Global history register.
 
   for (UINT32 i = 0; i < (1 << GLOBAL_HISTORY_LENGTH); i++) {
       for (UINT32 j = 0; j < (1 << LOCAL_HISTORY_LENGTH); j++) {
           for (UINT32 k = 0; k < (HIST_LEN + 1); k++) {
+
               W[i][j][k] = 0;
+
           }
       }
   }
 }
 
 void PREDICTOR::initGlobalHistoryRegister() {
-  GHR = 0;
+  for (UINT32 i = 0; i < HIST_LEN; i++) {
+
+      GHR[i] = 0;
+
+  }
 }
+
