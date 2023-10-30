@@ -5,6 +5,9 @@
 #include "tracer.h"
 
 #define UINT16      unsigned short int
+#define GLOBAL_HISTORY_LENGTH 8//8 bits
+#define LOCAL_HISTORY_LENGTH 8 //8 bits
+#define HIST_LEN 15 //history length
 
 
 
@@ -18,7 +21,7 @@ class PREDICTOR{
  private:
 
 
-  UINT32  ghr;           // global history register
+  UINT32  GHR;           // global history register
   UINT32  *pht;          // pattern history table
   UINT32  historyLength; // history length
   UINT32  numPhtEntries; // entries in pht
@@ -29,6 +32,7 @@ class PREDICTOR{
   //UINT32 pht_local_bit_size;
   UINT32 *pht_local;
   UINT32 numPhtLocalEntries;
+  UINT32 W[1 << GLOBAL_HISTORY_LENGTH][1 << LOCAL_HISTORY_LENGTH][HIST_LEN + 1];
 
   //branch history table for local branch predictor
   UINT32 bht_history_length;
@@ -56,6 +60,10 @@ class PREDICTOR{
 
   void    UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget);
   void    TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget);
+
+  // Helper functions
+  void initWeights();
+  void initGlobalHistoryRegister();
 
 
   // Contestants can define their own functions below
