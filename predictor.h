@@ -32,6 +32,8 @@ class PREDICTOR{
   UINT32 W[1 << GLOBAL_HISTORY_LENGTH][1 << LOCAL_HISTORY_LENGTH][HIST_LEN + 1];
   UINT32 GHR[HIST_LEN]; // global history register
   UINT32 GA[HIST_LEN];
+  UINT16 MIN_VAL;
+  UINT16 MAX_VAL;
   int theta;
 
 
@@ -65,6 +67,7 @@ class PREDICTOR{
   // Helper functions
   void initWeights();
   void initGlobalHistoryRegister();
+  void initGlobalAddress();
 
 
   // Contestants can define their own functions below

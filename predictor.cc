@@ -44,11 +44,16 @@ PREDICTOR::PREDICTOR(void){
   // Global Address: GA
   // Global History Register: GHR
   // Weights: W
-  
-  theta = static_cast<int>(2.14 * (HIST_LEN + 1)) + 20;
+  MIN_VAL = ((1 << HIST_LEN) - 1) * -1;
+  MAX_VAL = ((1 << HIST_LEN) - 1) * 1;
+  UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
+  UINT16 m = (1 << LOCAL_HISTORY_LENGTH);
+  UINT32 W[n][m][HIST_LEN + 1]; 
+  theta = static_cast<UINT32>(2.14 * (HIST_LEN + 1)) + 20;
 
   initWeights(); // Initialize W
   initGlobalHistoryRegister(); // Initialize GHR
+  initGlobalAddress(); // Initialize GA
 }
 
 /////////////////////////////////////////////////////////////
@@ -56,11 +61,16 @@ PREDICTOR::PREDICTOR(void){
 
 bool   PREDICTOR::GetPrediction(UINT32 PC){
     output = W[PC][0][0];
-    for (int i = 1; i <= PC; i++) {
+    for (UINT32 i = 1; i <= PC; i++) {
         if (GHR[i]) {
-            output += W[PC][GA[i]][i];
+          if (W[PC % (1 << HIST_LEN)][GA[i]][i] < MAX_VAL) {
+            output += W[PC % (1 << HIST_LEN)][GA[i]][i];
+          }
         } else {
-            output -= W[PC][GA[i]][i];
+          if (W[PC % (1 << HIST_LEN)][GA[i]][i] > MIN_VAL) {
+            output -= W[PC % (1 << HIST_LEN)][GA[i]][i];
+          }
+
         }
     }
     bool prediction = (output >= 0) ? TAKEN : NOT_TAKEN;
@@ -71,27 +81,69 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget){
+void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget){\
+   UINT32 k = PC % (1 << GLOBAL_HISTORY_LENGTH); 
+
    if (abs(output) < theta || predDir) {
+
       if (predDir) {
-          W[PC][0][0] = W[PC][0][0] + 1;
+
+          if (W[k][0][0] < MAX_VAL) {
+
+            W[PC % (1 << HIST_LEN)][0][0] += 1;
+
+          }
+
       } else {
-          W[PC][0][0] = W[PC][0][0] - 1;
+
+          if ( W[k][0][0] > MIN_VAL) {
+
+            W[PC % (1 << HIST_LEN)][0][0] -= 1;
+
+          }
+
       }
 
-      for (int i = 0 ; i < HIST_LEN ; i++)
+/////////////////////////////////////////////////////////////
+
+      for (UINT32 i = 0 ; i < HIST_LEN ; i++)
         {
-            if (GHR[i] == TAKEN)
-            {
-                W[PC][GA[i]][i] += 1 ; 
+
+          UINT32 j = GA[i] % GLOBAL_HISTORY_LENGTH;
+
+            if (GHR[i] == predDir)
+            { 
+              if( W[k][j][i+1] < MAX_VAL) 
+                {
+
+                    W[k][j][i+1] += 1 ; 
+                }
             }
             else
             {
-                W[PC][GA[i]][i] -= 1 ; 
+              if( W[k][j][i+1] < MIN_VAL) 
+                {
+
+                    W[k][j][i+1] -= 1 ; 
+                }
+
             }
         }
+
     } 
+
+    for (UINT32 i = HIST_LEN - 1 ; i >= 1 ; i--){
+
+        GA[i] = GA[i-1];
+        GHR[i] = GHR[i-1];
+
+    }
+
+    GA[0] = PC;
+    GHR[0] = predDir;
 }
+
+
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -126,9 +178,7 @@ void PREDICTOR::TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget) {
 */
 
 void PREDICTOR::initWeights() {
-  UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
-  UINT16 m = (1 << LOCAL_HISTORY_LENGTH);
-  UINT32 W[n][m][HIST_LEN + 1]; 
+
 
   for (UINT32 i = 0; i < (1 << GLOBAL_HISTORY_LENGTH); i++) {
       for (UINT32 j = 0; j < (1 << LOCAL_HISTORY_LENGTH); j++) {
@@ -142,10 +192,18 @@ void PREDICTOR::initWeights() {
 }
 
 void PREDICTOR::initGlobalHistoryRegister() {
-  for (UINT32 i = 0; i < HIST_LEN; i++) {
+    for (UINT32 i = 0; i < HIST_LEN; i++) {
 
       GHR[i] = 0;
 
+    } 
   }
+
+void PREDICTOR::initGlobalAddress() {
+    for (UINT32 i = 0; i < HIST_LEN; i++) {
+
+      GA[i] = 0;
+
+    }
 }
 
