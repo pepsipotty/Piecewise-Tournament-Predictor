@@ -4,19 +4,8 @@
 #define GLOBAL_HISTORY_LENGTH 8//8 bits
 #define LOCAL_HISTORY_LENGTH 8 //8 bits
 #define HIST_LEN 15 //history length
+#define WEIGHT_WIDTH 8
 
-
-// #define PHT_CTR_MAX  3
-// //chuan: for tournament predictor
-// #define TOURNAMENT_CTR_MAX 3
-// #define PHT_CTR_INIT 2
-
-// #define TOUR_LEN   15
-// #define BHT_BIT_SIZE 12
-// #define BHT_HIST_LENGTH 15
-// #define PHT_LOCAL_CTR_INIT 2
-// #define PHT_LOCAL_CTR_MAX  3
-// #define UINT16      unsigned short int
 
 /////////////// STORAGE BUDGET JUSTIFICATION ////////////////
 // Total storage budget: 32KB + 32 bits
@@ -34,18 +23,13 @@
 // Total Tournament counter's size = 2^15 * 2 bits/counter = 2^16 bits = 8KB
 /////////////////////////////////////////////////////////////
 
-
-
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////
-
 PREDICTOR::PREDICTOR(void){
   // This implementation requires the following variables to be declared and initialized:
   // Global Address: GA
   // Global History Register: GHR
   // Weights: W
-  MIN_VAL = ((1 << HIST_LEN) - 1) * -1;
-  MAX_VAL = ((1 << HIST_LEN) - 1) * 1;
+  MIN_VAL = (1 << WEIGHT_WIDTH- 1) * -1;
+  MAX_VAL = (1 << WEIGHT_WIDTH - 1) * 1;
 
   theta = static_cast<UINT32>(2.14 * (HIST_LEN + 1)) + 20.58;
 
@@ -68,9 +52,7 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 
         if (GHR[i]) {
 
-
           output += W[k][j][i+1];
-
 
         } else {
 
@@ -119,18 +101,17 @@ void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT3
 
             if (GHR[i] == resolveDir)
             { 
-              if( W[k][j][i+1] < MAX_VAL) 
-                {
+              if( W[k][j][i+1] < MAX_VAL) {
 
-                    W[k][j][i+1] += 1 ; 
+                    W[k][j][i+1] += 1; 
                 }
             }
             else
             {
-              if( W[k][j][i+1] > MIN_VAL) 
-                {
+              if( W[k][j][i+1] > MIN_VAL) {
 
-                    W[k][j][i+1] -= 1 ; 
+                    W[k][j][i+1] -= 1; 
+
                 }
 
             }
@@ -146,9 +127,8 @@ void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT3
     }
 
     GA[0] = PC;
-    GHR[0] = predDir;
+    GHR[0] = resolveDir;
 }
-
 
 
 /////////////////////////////////////////////////////////////
@@ -167,21 +147,6 @@ void PREDICTOR::TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget) {
 /////////////////////////////////////////////////////////////
 
 // My beloved helper functions to keep the code above clean
-
-
-
-/*
- 
-  #     # ####### #       ######  ####### ######  
-  #     # #       #       #     # #       #     # 
-  #     # #       #       #     # #       #     # 
-  ####### #####   #       ######  #####   ######  
-  #     # #       #       #       #       #   #   
-  #     # #       #       #       #       #    #  
-  #     # ####### ####### #       ####### #     # 
-                                                  
- 
-*/
 
 void PREDICTOR::initWeights() {
   UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
