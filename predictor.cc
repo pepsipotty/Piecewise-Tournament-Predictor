@@ -1,4 +1,5 @@
 #include "predictor.h"
+#include <cmath>
 
 //sengwei: Idealized Piecewise Linear Branch Prediction
 #define GLOBAL_HISTORY_LENGTH 8//8 bits
@@ -31,7 +32,7 @@ PREDICTOR::PREDICTOR(void){
   MIN_VAL = (1 << WEIGHT_WIDTH- 1) * -1;
   MAX_VAL = (1 << WEIGHT_WIDTH - 1) * 1;
 
-  theta = static_cast<UINT32>(2.14 * (HIST_LEN + 1)) + 20.58;
+  theta = static_cast<UINT32>(floor(2.14 * (HIST_LEN + 1)) + 20.58);
 
   initWeights(); // Initialize W
   initGlobalHistoryRegister(); // Initialize GHR
@@ -50,13 +51,13 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 
         int j = GA[i] % (1 << LOCAL_HISTORY_LENGTH);
 
-        if (GHR[i]) {
+        if (GHR[i] == true) {
 
           output += W[k][j][i+1];
 
         } else {
 
-          output += W[k][j][i+1];
+          output -= W[k][j][i+1];
 
         }
 
@@ -97,7 +98,7 @@ void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT3
       for (UINT32 i = 0 ; i < HIST_LEN ; i++)
         {
 
-          UINT32 j = GA[i] % GLOBAL_HISTORY_LENGTH;
+          UINT32 j = GA[i] % (1 << GLOBAL_HISTORY_LENGTH);
 
             if (GHR[i] == resolveDir)
             { 
@@ -149,9 +150,9 @@ void PREDICTOR::TrackOtherInst(UINT32 PC, OpType opType, UINT32 branchTarget) {
 // My beloved helper functions to keep the code above clean
 
 void PREDICTOR::initWeights() {
-  UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
-  UINT16 m = (1 << LOCAL_HISTORY_LENGTH);
-  UINT32 W[n][m][HIST_LEN + 1]; 
+  // UINT16 n = (1 << GLOBAL_HISTORY_LENGTH);
+  // UINT16 m = (1 << LOCAL_HISTORY_LENGTH);
+  // UINT32 W[n][m][HIST_LEN + 1]; 
 
   for (UINT32 i = 0; i < (1 << GLOBAL_HISTORY_LENGTH); i++) {
       for (UINT32 j = 0; j < (1 << LOCAL_HISTORY_LENGTH); j++) {
@@ -167,7 +168,7 @@ void PREDICTOR::initWeights() {
 void PREDICTOR::initGlobalHistoryRegister() {
     for (UINT32 i = 0; i < HIST_LEN; i++) {
 
-      GHR[i] = 0;
+      GHR[i] = false;
 
     } 
   }

@@ -27,9 +27,9 @@ class PREDICTOR{
   //UINT32 pht_local_bit_size;
   UINT32 *pht_local;
   UINT32 numPhtLocalEntries;
-  UINT32 W[1 << GLOBAL_HISTORY_LENGTH][1 << LOCAL_HISTORY_LENGTH][HIST_LEN + 1];
+  int W[1 << GLOBAL_HISTORY_LENGTH][1 << LOCAL_HISTORY_LENGTH][HIST_LEN + 1];
   UINT32 GHR[HIST_LEN]; // global history register
-  UINT32 GA[HIST_LEN];
+  intptr_t GA[HIST_LEN];
   int MIN_VAL;
   int MAX_VAL;
   int theta;
