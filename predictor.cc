@@ -1,19 +1,27 @@
 #include "predictor.h"
 #include <cmath>
+#define ADDR_LEN 6// 6 bits
+#define GA_LEN 6 // 6 bits
+#define HIST_LEN 15 // history length
+#define WEIGHT_WIDTH 8 
+
 /////////////// STORAGE BUDGET JUSTIFICATION ////////////////
-// Total storage budget: 64KB + 32 bits
 
-// Total PHT counters for Global predictor: 2^15
-// Total PHT size for global predictor = 2^15 * 2 bits/counter = 2^16 bits = 8KB
-// GHR size for global predictor: 32 bits
 
-// Total PHT counters for local predictor: 2^15
-// Total PHT size for local predictor = 2^15 * 2 bits/counter = 2^16 bits = 8KB
-// Total BHT size for local predictor = 2^12 * 16 bits/counter = 2^16 bits = 8KB
-// Total Size for local predictor = 8KB + 8KB = 16KB
+// Number of entries for PC (ADDR_LEN): 2^6  --- A
+// Number of entries for Global Address (GA_LEN): 2^6 --- B
+// Number of weights for each combination of PC and Global Address(HIST_LEN + 1): 15 + 1 = 16 --- C
+// Each Weight size(WEIGHT_WIDTH): 8 bits. --- D
+// Total size for W: A x B x C x D bits = 524288 bits --- E
 
-// Total Tournament counters is: 2^15
-// Total Tournament counter's size = 2^15 * 2 bits/counter = 2^16 bits = 8KB
+// Total Global History Register size(HIST_LEN x bool): 15 x 1 bits --- F
+// Total Global Address size(HIST_LEN x GA_LEN): 15 x 6 bits --- G
+// Total size for GHR and GA: F + G bits = 135 bits --- H
+
+// Total Storage Budget in bits: E + H bits = 524393 bits
+// Total Storage Budget in bytes: 524393 / 8192 = 64.01 kilobytes
+
+
 /////////////////////////////////////////////////////////////
 
 PREDICTOR::PREDICTOR(void){
@@ -21,8 +29,8 @@ PREDICTOR::PREDICTOR(void){
   // Global Address: GA
   // Global History Register: GHR
   // Weights: W
-  MIN_VAL = (1 << WEIGHT_WIDTH- 1) * -1;
-  MAX_VAL = (1 << WEIGHT_WIDTH - 1) * 1;
+  MIN_VAL = ((1 << WEIGHT_WIDTH)- 1) * -1;
+  MAX_VAL = ((1 << WEIGHT_WIDTH) - 1) * 1;
   theta = static_cast<UINT32>(floor(2.14 * (HIST_LEN + 1)) + 20.58);
 
   initWeights(); // Initialize W
@@ -38,8 +46,8 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 
     output = W[k][0][0];
 
-    for (UINT32 i = 1; i <= HIST_LEN; i++) {
-
+    for (UINT32 i = 1; i < HIST_LEN; i++) {
+        
         int j = GA[i] % (1 << GA_LEN);
 
         if (GHR[i] == true) {
@@ -53,6 +61,7 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
         }
 
     }
+
     bool prediction = (output >= 0) ? TAKEN : NOT_TAKEN;
     return prediction;
 }
@@ -66,7 +75,7 @@ void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT3
 
    if (abs(output) < theta || predDir != resolveDir) {
 
-      if (resolveDir == true) {
+      if (resolveDir == TAKEN) {
 
           if (W[k][0][0] < MAX_VAL) {
 
@@ -83,7 +92,7 @@ void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT3
           }
 
       }
-/////////////////////////////////////////////////////////////
+
       for (UINT32 i = 0 ; i < HIST_LEN ; i++)
         {
 

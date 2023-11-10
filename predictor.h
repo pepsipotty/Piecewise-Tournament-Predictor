@@ -5,8 +5,8 @@
 #include "tracer.h"
 
 #define UINT16      unsigned short int
-#define ADDR_LEN 8//8 bits
-#define GA_LEN 8 //8 bits
+#define ADDR_LEN 6 //8 bits
+#define GA_LEN 6 //8 bits
 #define HIST_LEN 15 //history length
 #define WEIGHT_WIDTH 8
 
