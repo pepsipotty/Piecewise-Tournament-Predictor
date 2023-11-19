@@ -7,7 +7,6 @@
 
 /////////////// STORAGE BUDGET JUSTIFICATION ////////////////
 
-
 // Number of entries for PC (ADDR_LEN): 2^6  --- A
 // Number of entries for Global Address (GA_LEN): 2^6 --- B
 // Number of weights for each combination of PC and Global Address(HIST_LEN + 1): 15 + 1 = 16 --- C
@@ -20,7 +19,6 @@
 
 // Total Storage Budget in bits: E + H bits = 524393 bits
 // Total Storage Budget in bytes: 524393 / 8192 = 64.01 kilobytes
-
 
 /////////////////////////////////////////////////////////////
 
@@ -62,7 +60,7 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 
     }
 
-    bool prediction = (output >= 0) ? TAKEN : NOT_TAKEN;
+    bool prediction = (output >= -3) ? TAKEN : NOT_TAKEN;
     return prediction;
 }
 
@@ -73,6 +71,7 @@ bool   PREDICTOR::GetPrediction(UINT32 PC){
 void  PREDICTOR::UpdatePredictor(UINT32 PC, bool resolveDir, bool predDir, UINT32 branchTarget){
    UINT32 k = PC % (1 << ADDR_LEN); 
 
+  // Only update the weights if the prediction is wrong or the output is less than theta
    if (abs(output) < theta || predDir != resolveDir) {
 
       if (resolveDir == TAKEN) {
@@ -161,9 +160,11 @@ void PREDICTOR::initWeights() {
 
 void PREDICTOR::initGlobalHistoryRegister() {
     for (UINT32 i = 0; i < HIST_LEN; i++) {
-
-      GHR[i] = false;
-
+      if (i % 2 == 0) {
+        GHR[i] = true;
+      } else {
+        GHR[i] = false;
+      }
     } 
   }
 
