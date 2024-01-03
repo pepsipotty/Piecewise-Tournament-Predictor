@@ -5,7 +5,7 @@
 // workshop held in conjunction with ISCA'2014.                                //
 // Everyone is granted permission to copy, modify, and/or re-distribute        //
 // this software.                                                              //
-// Please contact Moinuddin Qureshi <moin@gatech.edu> if you have any questions//
+// Please contact Moinuddin Qureshi <moin@gatech.edu> if you have any questions// 
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 

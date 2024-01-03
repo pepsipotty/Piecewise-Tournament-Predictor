@@ -1,0 +1,28 @@
+
+ResultDirs ==>      	esults/YOURMUM	
+
+LONG-SPEC2K6-00     	       3.560 	
+LONG-SPEC2K6-01     	       7.148 	
+LONG-SPEC2K6-02     	       4.741 	
+LONG-SPEC2K6-03     	       6.333 	
+LONG-SPEC2K6-04     	      10.030 	
+LONG-SPEC2K6-05     	       5.046 	
+LONG-SPEC2K6-06     	       2.934 	
+LONG-SPEC2K6-07     	       9.475 	
+LONG-SPEC2K6-08     	       1.578 	
+LONG-SPEC2K6-09     	       5.323 	
+SHORT-FP-1          	       3.063 	
+SHORT-FP-2          	       1.062 	
+SHORT-FP-3          	       0.427 	
+SHORT-INT-1         	       6.259 	
+SHORT-INT-2         	       5.492 	
+SHORT-INT-3         	      12.104 	
+SHORT-MM-1          	       7.313 	
+SHORT-MM-2          	       8.774 	
+SHORT-MM-3          	       4.911 	
+SHORT-SERV-1        	       1.713 	
+SHORT-SERV-2        	       1.647 	
+SHORT-SERV-3        	       3.918 	
+
+AMEAN               	       5.130 	
+
